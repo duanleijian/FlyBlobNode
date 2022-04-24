@@ -1,7 +1,8 @@
 const dbConfig = {
   mysql: {
     port: '3306',
-    host: 'localhost',
+    // host: 'localhost',
+    host: '175.24.165.205',
     user: 'root',
     password: 'root',
     database: 'blog',
