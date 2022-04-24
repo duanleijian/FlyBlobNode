@@ -10,6 +10,7 @@ import { join, resolve } from 'path';
 import { createWriteStream } from 'fs';
 import { uuid } from '../../utils/uuid'
 import { Random } from '../../utils/rand'
+import { existDir } from '../../utils/file'
 import useGlobal from '../../utils/global'
 const nodemailer = require('nodemailer')
 @Injectable()
@@ -179,6 +180,7 @@ export class UserService {
     async uploadPicture(file: any, userId: number) {                        
         const fileUUName = uuid()
         const fileType = file.originalname.split('.')[1]
+        await existDir(join(__dirname, '..','../public/upload'))
         const writeImage = createWriteStream(join(__dirname, '..','../public/upload', `${fileUUName}.${fileType}`))                        
         writeImage.write(file.buffer)
         try {
