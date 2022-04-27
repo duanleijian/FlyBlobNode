@@ -62,8 +62,8 @@ export class UserService {
         const { decoded, err } = verifyToken(token)                
         if(err) {
             return JSONResult(401, null, 'token已过期失效!')
-        } else {
-            return getJSONResult(async (res) => {
+        } else {                        
+            return getJSONResult(async (res) => {                
                 res.data = await this.userRepository.findOneDetail(decoded.userName, AES_ECB_ENCRYPT(decoded.userPwd))                                                   
             })
         }        
@@ -279,7 +279,7 @@ export class UserService {
                 const results = await this.userRepository.findOneById(target.userId)
                 if (results.length) {
                     // 修改密码后必须返回新的token
-                    const token = createToken({userName: results[0].userName, userPwd: results[0].userPwd}, 60 * 60) 
+                    const token = createToken({userName: results[0].userName, userPwd}, 60 * 60) 
                     result = JSONResult(200, {user: results[0], token}, '修改成功!')
                 } else {
                     result = JSONResult(500, null, '密码重置失败!')
