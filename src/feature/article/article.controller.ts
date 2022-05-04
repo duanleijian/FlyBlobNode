@@ -62,6 +62,11 @@ export class ArticleController {
 		return this.articleService.addOne(articleDTO);
 	}	
 
+	@Put('')
+	updateArticleInfo(@Body() articleDTO: ArticleDTO) {
+		return this.articleService.editOne(articleDTO)
+	}
+	
 	@Get(':id')
 	findOneById(@Param('id') id: number) {		
 		return this.articleService.queryOne(id);
