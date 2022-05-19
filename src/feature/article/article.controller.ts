@@ -10,6 +10,7 @@ import {
 	Body,
 	Headers,
 	Param,
+	Delete
 } from '@nestjs/common';
 import { threadId } from 'worker_threads';
 import ArticleDTO from './article.dto';
@@ -80,5 +81,10 @@ export class ArticleController {
 	@Get('/views/:id')
 	editArticleViews(@Param('id') id: number) {
 		return this.articleService.updateArticleViews(id);
-	}	
+	}
+	
+	@Delete(":id")
+	deleteArticle(@Param('id') id: number) {
+		return this.articleService.removeOne(id);
+	}
 }

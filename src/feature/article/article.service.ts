@@ -114,6 +114,14 @@ export class ArticleService {
       res.data = metadata;
     });
   }
+  removeOne(articleId: number) {
+    return getJSONResult(async (res) => {
+      const [results, metadata] = await this.articleRepository.delArticle(
+        articleId,
+      );
+      res.data = metadata;
+    });
+  }
   async updateOneAndCount(articleDTO: ArticleDTO) {
     const result = await this.articleRepository.updateOne(articleDTO);
     return getJSONResult(async (res) => {

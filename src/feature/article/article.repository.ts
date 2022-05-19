@@ -142,6 +142,11 @@ export class ArticleRepository {
     return Article.update(param, { where: { articleId } });
   }
 
+  delArticle(id: number) {
+    const sql = `delete from tb_article where article_id = ${id}`;
+    return sequelize.query(sql);
+  }
+
   recommendArticle() {
     const sql = `select a.*,u.* from tb_article a inner join tb_user u on a.user_id = u.user_id order by (a.article_views * 0.1 + a.article_likes * 0.15 + a.article_loves * 0.15 + a.article_collects * 0.4) desc`;
     return sequelize.query(sql, { model: ArticleUser, mapToModel: true });
