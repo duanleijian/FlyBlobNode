@@ -4,7 +4,7 @@ export const ActionMap = {
   actionId: {
     type: DataType.BIGINT,
     allowNull: false,
-    field: 'article_id',
+    field: 'action_id',
   },
   articleId: {
     type: DataType.BIGINT,

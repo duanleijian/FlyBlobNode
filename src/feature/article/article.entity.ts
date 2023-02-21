@@ -12,17 +12,17 @@ export const ArticleMap = {
     field: 'user_id',
   },
   articleTitle: {
-    type: DataType.BIGINT,
+    type: DataType.STRING,
     allowNull: false,
     field: 'article_title',
   },
   articleTip: {
-    type: DataType.BIGINT,
+    type: DataType.STRING,
     allowNull: false,
     field: 'article_tip',
   },
   articleContent: {
-    type: DataType.BIGINT,
+    type: DataType.STRING,
     allowNull: false,
     field: 'article_content',
   },
@@ -52,7 +52,7 @@ export const ArticleMap = {
     field: 'article_loves',
   },
   articleDate: {
-    type: DataType.BIGINT,
+    type: DataType.DATE,
     allowNull: false,
     field: 'article_date',
   },

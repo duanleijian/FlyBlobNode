@@ -82,7 +82,7 @@ export const UserMap = {
     field: 'update_time',
   },
   userRelate: {
-    type: DataType.DATE,
+    type: DataType.STRING,
     allowNull: true,
     field: 'user_relate',
   },
