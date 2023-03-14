@@ -57,6 +57,11 @@ export class ArticleService {
       return JSONResult(500, null, err);
     }
   }
+  queryByNearWeek(userId: number) {
+    return getJSONResult(async (res) => {
+      res.data = await this.articleRepository.findByNearWeek(userId)
+    });
+  }
   queryByUser(userId: number) {
     return getJSONResult(async (res) => {
       res.data = await this.articleRepository.findByUserId(userId);

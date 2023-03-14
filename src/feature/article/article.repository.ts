@@ -9,6 +9,10 @@ export class ArticleRepository {
     const sql = `select count(*) as result from tb_article where user_id = ${userId}`;
     return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
   }
+  findByNearWeek(userId: number) {
+    const sql = `select * from tb_article where user_id = ${userId} and DATE_SUB(CURDATE(), INTERVAL 7 DAY) < date(article_date)`;
+    return sequelize.query(sql, { model: ArticleUser, mapToModel: true });
+  }
   findCount() {
     const sql = 'select count(*) as total from tb_article';
     return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });

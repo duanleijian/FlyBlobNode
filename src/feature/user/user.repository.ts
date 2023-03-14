@@ -33,6 +33,7 @@ export class UserRepository {
                       from tb_action where action_user_id = ${userId}`
         return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT })
     }
+
     findAll(): Promise<any> {
         const sql = `select * from tb_user`
         return sequelize.query(sql, { model: User, mapToModel: true })

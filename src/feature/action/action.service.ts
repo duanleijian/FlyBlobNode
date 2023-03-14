@@ -95,4 +95,13 @@ export class ActionService {
       return JSONResult(500, null, err);
     }
   }
+
+  async queryAuthorCount(userId: number) {
+    try {
+      const counts = await this.actionRepository.staticsAuthorCount(userId);
+      return JSONResult(200, counts[0], 'ok');
+    } catch (err) {
+      return JSONResult(500, null, err);
+    }
+  }
 }

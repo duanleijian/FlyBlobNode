@@ -23,6 +23,11 @@ export class ArticleController {
 	findRecommendArticles() {		
 		return this.articleService.queryByRecommend();
 	}
+
+	@Get('/week/list')
+	getArticleWeek(@Query('userId') userId: number) {			 					
+		return this.articleService.queryByNearWeek(userId)
+	}
 	
 	@Get('/list')
 	getArticleList(@Query('pageNum') pageNum:number, @Query('pageSize') pageSize: number, @Query('sort') sortType: string) {			 					

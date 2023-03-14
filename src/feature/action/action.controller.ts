@@ -4,7 +4,7 @@ import {
   Get,
   Inject,
   Param,
-  Post,
+  Query,
   Put,
 } from '@nestjs/common';
 import { ActionService } from './action.service';
@@ -14,6 +14,11 @@ export class ActionController {
   constructor(
     @Inject(ActionService) private readonly actionService: ActionService,
   ) {}
+
+  @Get('/author')
+  findAuthorCount(@Query('userId') userId: number) {
+    return this.actionService.queryAuthorCount(userId);
+  }
 
   @Get('/count/:articleId/:articleUserId')
   findAction(

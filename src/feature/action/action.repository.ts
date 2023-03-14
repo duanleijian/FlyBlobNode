@@ -34,4 +34,16 @@ export class ActionRepository {
     const sql = `select action_like as likes, action_love as loves, action_collect as collects from tb_action where article_id = ${articleId} and action_user_id = ${actionUserId}`;
     return sequelize.query(sql, { type: QueryTypes.SELECT });
   }
+
+  staticsAuthorCount(userId: number) {
+    const sql = `select 
+                      (select count(*) from tb_article where user_id = ${userId}) as articles,
+                      (select count(*) from tb_user where locate('${userId}', user_relate)) as follows,
+                      (select CAST(sum(article_views) as UNSIGNED) from tb_article where user_id = ${userId}) as views,
+                      (select CAST(sum(article_likes) as UNSIGNED) from tb_article where user_id = ${userId}) as likes,
+                      (select CAST(sum(article_loves) as UNSIGNED) from tb_article where user_id = ${userId}) as loves,
+                      (select CAST(sum(article_collects) as UNSIGNED) from tb_article where user_id = ${userId}) as collects
+                      from tb_user where user_id = ${userId}`;
+    return sequelize.query(sql, { type: QueryTypes.SELECT });
+  }
 }
