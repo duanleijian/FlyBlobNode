@@ -62,6 +62,11 @@ export const CommentMap = {
     allowNull: false,
     field: 'comment_date',
   },
+  commentStatus: {
+    type: DataType.INET,
+    allowNull: false,
+    field: 'comment_status',
+  },
 };
 
 export const Comment = sequelize.define('Comment', CommentMap);

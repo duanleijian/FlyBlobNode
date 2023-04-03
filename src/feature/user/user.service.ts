@@ -6,12 +6,14 @@ import { UserRepository } from './user.repository';
 import { getJSONResult, JSONResult } from '../../utils/result';
 import { AES_ECB_DECRYPT, AES_ECB_ENCRYPT } from '../../utils/secret';
 import { createToken, verifyToken } from '../../utils/jwt';
-import { join, resolve } from 'path';
+import { join } from 'path';
 import { createWriteStream } from 'fs';
 import { uuid } from '../../utils/uuid'
 import { Random } from '../../utils/rand'
 import { existDir } from '../../utils/file'
+import { UserParams } from './user.dto'
 import useGlobal from '../../utils/global'
+import { filterParam, paging } from '@/utils/pager';
 const nodemailer = require('nodemailer')
 @Injectable()
 export class UserService {
@@ -41,6 +43,23 @@ export class UserService {
             return JSONResult(500, null, err)
         }        
     }
+    async queryAdminBySort(userParams: UserParams) {
+        const params = filterParam(userParams);
+        const pager = paging(userParams.pageNum, userParams.pageSize);
+        try {
+          const resultMap = await this.userRepository.findCount();
+          return getJSONResult(async (res) => {
+            const list = await this.userRepository.findAdminBySort({
+              ...params,
+              pageNum: pager.pageNum,
+              pageSize: pager.pageSize,
+            });
+            res.data = { list, total: resultMap[0].total };
+          });
+        } catch (err) {
+          return JSONResult(500, null, err);
+        }
+      }
     queryAllUser() {    
         return getJSONResult(async (res) => {            
             res.data = await this.userRepository.findAll()                                  
@@ -128,6 +147,12 @@ export class UserService {
             res.data = metadata
         })        
     }
+    removeOne(id: number) {
+        return getJSONResult(async (res) => {
+            const [results, metadata] = await this.userRepository.deleteOne(id)
+            res.data = metadata
+        }) 
+    }
     setOne(user: any) {
         return getJSONResult(async (res) => {
             const [results, metadata] = await this.userRepository.updateOne(user)
@@ -168,6 +193,18 @@ export class UserService {
     async login(userName: string, userPwd: string) {
         try {
             const resultMap = await this.userRepository.findOne(userName, AES_ECB_ENCRYPT(userPwd))
+            if (resultMap[0].result) {
+                return JSONResult(200, createToken({userName, userPwd}, 60 * 60), 'ok')
+            } else {
+                return JSONResult(500, null, '请检查账号密码是否正确!')
+            }
+        } catch (err) {
+            return JSONResult(500, null, `login: ${err}`)
+        }
+    }
+    async adminLogin(userName: string, userPwd: string) {
+        try {
+            const resultMap = await this.userRepository.findAdmin(userName, AES_ECB_ENCRYPT(userPwd))
             if (resultMap[0].result) {
                 return JSONResult(200, createToken({userName, userPwd}, 60 * 60), 'ok')
             } else {

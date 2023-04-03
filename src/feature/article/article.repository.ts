@@ -2,8 +2,9 @@
 import sequelize from '../../db/sequelize';
 import { Article } from './article.entity';
 import { ArticleUser } from './article_user.entity';
-import ArticleDTO from './article.dto';
-import { getNow } from '../../utils/date';
+import { ArticleDTO } from './article.dto';
+import { getNow } from '@/utils/date';
+import { filterWhere } from '@/utils/format';
 export class ArticleRepository {
   countArticles(userId: number) {
     const sql = `select count(*) as result from tb_article where user_id = ${userId}`;
@@ -31,6 +32,24 @@ export class ArticleRepository {
       sql = `select a.article_id, a.user_id, a.article_title, a.article_tip, a.article_content, a.article_views, a.article_likes, a.article_collects, a.article_loves, a.article_date, (select count(*) from tb_comment where article_id = a.article_id) as article_comments, u.* from tb_article a inner join tb_user u on a.user_id = u.user_id order by a.article_date desc limit ${page.start}, ${page.pageSize}`;
     }
     return sequelize.query(sql, { model: ArticleUser, mapToModel: true });
+  }
+  findAdminBySort(articleParam: any) {
+    const {
+      pageNum,
+      pageSize,
+      sortType,
+      articleTitle,
+      articleStartDate,
+      articleEndDate,
+    } = articleParam;
+    const p1 = articleTitle ? `article_title like '%${articleTitle}%'` : '';
+    const p2 =
+      articleStartDate && articleEndDate
+        ? `article_date >= '${articleStartDate}' and article_date <= '${articleEndDate}'`
+        : '';
+    const condition = filterWhere([p1, p2], ' and ');
+    const sql = `select * from tb_article ${condition} order by article_date ${sortType} limit ${pageNum}, ${pageSize}`;
+    return sequelize.query(sql, { model: Article, mapToModel: true });
   }
   findBySearch(
     keyWord: string,
@@ -110,6 +129,11 @@ export class ArticleRepository {
       articleLoves,
     } = articleDTO;
     const sql = `insert into tb_article(user_id, article_title, article_tip, article_content, article_views, article_likes, article_collects, article_comments, article_loves, article_date) values(${userId},'${articleTitle}','${articleTip}','${articleContent}',${articleViews},${articleLikes},${articleCollects},${articleComments},${articleLoves}, '${getNow()}')`;
+    return sequelize.query(sql);
+  }
+
+  updateOneStatus(articleId: number, articleStatus: number): Promise<any> {
+    const sql = `update tb_article set article_status = ${articleStatus} where article_id = ${articleId}`;
     return sequelize.query(sql);
   }
 

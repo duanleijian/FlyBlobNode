@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import sequelize from '../../db/sequelize';
+import { filterParam, paging } from '@/utils/pager';
 import { ArticleRepository } from './article.repository';
-import ArticleDTO from './article.dto';
-import { JSONResult, getJSONResult } from '../../utils/result';
-import { extractKeyWord } from '../../utils/keyword';
+import { ArticleDTO, ArticleParam } from './article.dto';
+import { JSONResult, getJSONResult } from '@/utils/result';
+import { extractKeyWord } from '@/utils/keyword';
 @Injectable()
 export class ArticleService {
   constructor(
@@ -21,6 +22,23 @@ export class ArticleService {
       start: (pageNum - 1) * pageSize,
       pageSize,
     };
+  }
+  async queryAdminBySort(articleParam: ArticleParam) {
+    const params = filterParam(articleParam);
+    const pager = paging(articleParam.pageNum, articleParam.pageSize);
+    try {
+      const resultMap = await this.articleRepository.findCount();
+      return getJSONResult(async (res) => {
+        const list = await this.articleRepository.findAdminBySort({
+          ...params,
+          pageNum: pager.pageNum,
+          pageSize: pager.pageSize,
+        });
+        res.data = { list, total: resultMap[0].total };
+      });
+    } catch (err) {
+      return JSONResult(500, null, err);
+    }
   }
   async queryBySort(sortType: string, page: any) {
     try {
@@ -59,7 +77,7 @@ export class ArticleService {
   }
   queryByNearWeek(userId: number) {
     return getJSONResult(async (res) => {
-      res.data = await this.articleRepository.findByNearWeek(userId)
+      res.data = await this.articleRepository.findByNearWeek(userId);
     });
   }
   queryByUser(userId: number) {
@@ -115,6 +133,15 @@ export class ArticleService {
     return getJSONResult(async (res) => {
       const [results, metadata] = await this.articleRepository.updateOne(
         articleDTO,
+      );
+      res.data = metadata;
+    });
+  }
+  editOneStatus(articleId: number, articleStatus: number) {
+    return getJSONResult(async (res) => {
+      const [results, metadata] = await this.articleRepository.updateOneStatus(
+        articleId,
+        articleStatus,
       );
       res.data = metadata;
     });

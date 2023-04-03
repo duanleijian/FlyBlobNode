@@ -11,10 +11,11 @@ import {
   UseInterceptors,
   UploadedFile,
   Response,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import UserDTO from './user.dto';
+import { UserDTO, UserParams } from './user.dto';
 import { createToken, verifyToken } from '../../utils/jwt';
 import { join } from 'path';
 const fs = require('fs');
@@ -26,6 +27,11 @@ export class UserController {
     return this.userService.queryAllUser();
   }
 
+  @Post('/admin/list')
+  getAdminUserList(@Body() userParams: UserParams) {
+    return this.userService.queryAdminBySort(userParams);
+  }
+
   @Get('/recommend')
   getRecommendUsers() {
     return this.userService.queryRecommendAuthor();
@@ -34,6 +40,11 @@ export class UserController {
   @Get('/concatArticle')
   getConcatArticleByUsers() {
     return this.userService.queryUserAndArticle();
+  }
+
+  @Delete('/admin/delete/:id')
+  removeUser(@Param('id') userId: number) {
+    return this.userService.removeOne(userId);
   }
 
   @Post('/email')
@@ -94,6 +105,14 @@ export class UserController {
   @Post('/login')
   runLogin(@Body() userDTO: UserDTO) {
     return this.userService.login(userDTO.userName, userDTO.userPwd);
+  }
+
+  @Post('/adminlogin')
+  runAdminLogin(
+    @Body('username') username: string,
+    @Body('password') password: string,
+  ) {
+    return this.userService.adminLogin(username, password);
   }
 
   @Post('/register')

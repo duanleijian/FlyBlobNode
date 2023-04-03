@@ -22,7 +22,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
-    indent: ['error', 2]
+    indent: ['off', 4]
   },
   // endOfLine: 'crlf' // esling 会检测结尾序列
 };

@@ -56,6 +56,11 @@ export const ArticleMap = {
     allowNull: false,
     field: 'article_date',
   },
+  articleStatus: {
+    type: DataType.INET,
+    allowNull: false,
+    field: 'article_status',
+  },
 };
 export const Article = sequelize.define('Article', ArticleMap, {
   tableName: 'tb_article',

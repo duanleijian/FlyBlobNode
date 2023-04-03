@@ -8,12 +8,10 @@ import {
 	Post,
 	Put,
 	Body,
-	Headers,
 	Param,
 	Delete
 } from '@nestjs/common';
-import { threadId } from 'worker_threads';
-import ArticleDTO from './article.dto';
+import { ArticleDTO, ArticleParam } from './article.dto';
 import { ArticleService } from './article.service';
 @Controller('article')
 export class ArticleController {
@@ -37,6 +35,11 @@ export class ArticleController {
 	@Get('/search')
 	getSearchArticles(@Query('pageNum') pageNum: number, @Query('pageSize') pageSize: number, @Query('keyword') keyWord: string, @Query('sort') sortType: string, @Query('dateRange') dateRange: string) {
 		return this.articleService.queryBySearch(keyWord, sortType, dateRange, {pageNum: pageNum? pageNum : 1, pageSize: pageSize? pageSize : 7});
+	}
+
+	@Post('/admin/list')
+	getAdminArticleList(@Body() articleParam: ArticleParam) {
+		return this.articleService.queryAdminBySort(articleParam);
 	}
 
 	@Get('/concat/:id')
@@ -71,6 +74,11 @@ export class ArticleController {
 	@Put('')
 	updateArticleInfo(@Body() articleDTO: ArticleDTO) {
 		return this.articleService.editOne(articleDTO)
+	}
+
+	@Put('/admin/update')
+	updateAdminArticleStatus(@Body('articleId') articleId: number, @Body('articleStatus') articleStatus: number) {
+		return this.articleService.editOneStatus(articleId, articleStatus);
 	}
 	
 	@Get(':id')

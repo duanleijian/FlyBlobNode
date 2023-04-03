@@ -1,4 +1,4 @@
-export default class ArticleDTO {
+export class ArticleDTO {
   readonly articleId: number;
   readonly userId: number;
   readonly articleTitle: string;
@@ -10,4 +10,13 @@ export default class ArticleDTO {
   readonly articleComments: number;
   readonly articleLoves: number;
   readonly articleDate: string;
+}
+
+export class ArticleParam {
+  readonly pageNum: number;
+  readonly pageSize: number;
+  readonly sortType: string;
+  readonly articleTitle: string;
+  readonly articleStartDate: string;
+  readonly articleEndDate: string;
 }

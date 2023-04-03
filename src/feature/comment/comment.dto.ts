@@ -1,4 +1,4 @@
-export default class CommentDTO {
+export class CommentDTO {
   readonly commentId: number;
   readonly commentCreaterId: number;
   readonly commentCreater: string;
@@ -11,4 +11,16 @@ export default class CommentDTO {
   readonly articleId: number;
   readonly commentParentId: number;
   readonly commentDate: string;
+  readonly commentStatus: number;
+}
+
+export class CommentParams {
+  readonly pageNum: number;
+  readonly pageSize: number;
+  readonly sortType: string;
+  readonly articleTitle?: string;
+  readonly commentCreater?: string;
+  readonly commentReceivcer?: string;
+  readonly commentCont?: string;
+  readonly commentDate?: string;
 }

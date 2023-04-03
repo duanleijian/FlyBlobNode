@@ -4,7 +4,12 @@
 import sequelize from '../../db/sequelize'
 import { User } from "./user.entity"
 import { Article } from '../article/article.entity'
+import { filterWhere, createWhere } from '@/utils/format'
 export class UserRepository {
+    findCount() {
+        const sql = 'select count(*) as total from tb_user';
+        return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+    }
     countFollow(userId: number) {
         const sql = `select count(*) as result from tb_user where locate('${userId}', user_relate)`
         return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT })       
@@ -44,6 +49,30 @@ export class UserRepository {
         return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT })
     }
 
+    findAdmin(userName, passWord): Promise<any> {
+        const sql = `select count(*) as result from tb_user where user_name = '${userName}' and user_pwd = '${passWord}' and is_admin = ${1}`
+        return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT })
+    }
+
+    findAdminBySort(userParams: any) {
+        const {
+          pageNum,
+          pageSize,
+          sortType,
+          userNickName,
+          userIntroduct,
+          userDate
+        } = userParams;
+        const startTime = userDate? userDate.split(' ')[0] : '';
+        const endTime = userDate?  userDate.split(' ')[1] : '';
+        const p1 = createWhere(() => userNickName, `user_nick_name like '%${userNickName}%'`);
+        const p2 = createWhere(() => userIntroduct, `user_introduct like '%${userIntroduct}%'`);
+        const p3 = createWhere(() => startTime && endTime,`create_time >= '${startTime}' and create_time <= '${endTime}'` )
+        const condition = filterWhere([p1, p2, p3]);
+        const sql = `select * from tb_user ${condition} order by create_time ${sortType} limit ${pageNum}, ${pageSize}`;
+        return sequelize.query(sql, { model: User, mapToModel: true });
+    }
+
     findOneById(id: number) {
         const sql = `select * from tb_user where user_id = ${id}`;
         return sequelize.query(sql, { model: User, mapToModel: true})
@@ -61,8 +90,13 @@ export class UserRepository {
 
     insertOne(user: any) {
         const { userName, userPwd, userNickName } = user
-        const sql = `insert into tb_user (user_name, user_pwd, user_nick_name, user_relate) values('${userName}', '${userPwd}', '${userNickName}', '')`
+        const sql = `insert into tb_user (user_name, user_pwd, user_nick_name, user_relate, create_time, update_time) values('${userName}', '${userPwd}', '${userNickName}', '', SYSDATE(), SYSDATE())`
         return sequelize.query(sql)
+    }
+
+    deleteOne(id: number) {
+        const sql = `delete from tb_user where user_id = ${id}`
+        return sequelize.query(sql);
     }
 
     updateOne(user: any): Promise<any> {

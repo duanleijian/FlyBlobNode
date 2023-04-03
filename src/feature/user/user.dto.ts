@@ -1,4 +1,4 @@
-export default class UserDTO {
+export class UserDTO {
   readonly userId: number;
   readonly userName: string;
   readonly userPwd: string;
@@ -14,7 +14,15 @@ export default class UserDTO {
   readonly userIntroduct: string;
   readonly userRelate: string;
   readonly userLoginTime: string;
-  readonly user_relate: string;
   readonly createTime: string;
   readonly updateTime: string;
+}
+
+export class UserParams {
+  readonly pageNum: number;
+  readonly pageSize: number;
+  readonly sortType: string;
+  readonly userNickName?: string;
+  readonly userIntroduct?: string;
+  readonly userDate?: string;
 }
