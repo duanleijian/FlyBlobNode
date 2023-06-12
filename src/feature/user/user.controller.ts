@@ -6,17 +6,18 @@ import {
   Post,
   Put,
   Body,
-  Headers,
   Param,
   UseInterceptors,
   UploadedFile,
   Response,
   Delete,
+  Headers,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { UserDTO, UserParams } from './user.dto';
-import { createToken, verifyToken } from '../../utils/jwt';
+// import { createToken, verifyToken } from '../../utils/jwt';
+import TokenInterceptor from '../../Interceptor/TokenInterceptor';
 import { join } from 'path';
 const fs = require('fs');
 @Controller('user')
@@ -33,11 +34,18 @@ export class UserController {
   }
 
   @Get('/recommend')
-  getRecommendUsers() {
+  // @UseInterceptors(TokenInterceptor)
+  getRecommendUsers(@Headers() header: any) {
+    // console.log('Header', header);
+    // if (header['x-token']) {
+    //   const isExpire = verifyToken(header['x-token']);
+    //   console.log('isExpire', isExpire);
+    // }
     return this.userService.queryRecommendAuthor();
   }
 
   @Get('/concatArticle')
+  @UseInterceptors(TokenInterceptor)
   getConcatArticleByUsers() {
     return this.userService.queryUserAndArticle();
   }
@@ -64,6 +72,7 @@ export class UserController {
   }
 
   @Post('/resetPwd')
+  @UseInterceptors(TokenInterceptor)
   resetUserPwd(
     @Body('code') authCode: string,
     @Body('time') timeStamp: number,
@@ -73,6 +82,7 @@ export class UserController {
   }
 
   @Get('/countAuthor/:id')
+  @UseInterceptors(TokenInterceptor)
   getAuthorCounts(@Param('id') id: number) {
     return this.userService.queryAuthorCountById(id);
   }
@@ -88,6 +98,7 @@ export class UserController {
   }
 
   @Post('/getInfo')
+  @UseInterceptors(TokenInterceptor)
   getUserInfo(@Headers('Authorization') token) {
     return this.userService.queryOneDetail(token);
   }
@@ -105,6 +116,12 @@ export class UserController {
   @Post('/login')
   runLogin(@Body() userDTO: UserDTO) {
     return this.userService.login(userDTO.userName, userDTO.userPwd);
+  }
+
+  @Post('/refresh')
+  refreshToken(@Body() body: any) {
+    const { authToken, refreshToken } = body;
+    return this.userService.refreshAuthToken(authToken, refreshToken);
   }
 
   @Post('/adminlogin')
@@ -139,6 +156,21 @@ export class UserController {
   @UseInterceptors(FileInterceptor('avatar'))
   uploadAvatar(@UploadedFile() file, @Body('userId') userId: number) {
     return this.userService.uploadPicture(file, userId);
+  }
+
+  @Post('/upload/large')
+  @UseInterceptors(FileInterceptor('chunk'))
+  uploadLargeFile(@UploadedFile() file, @Body() body: any) {
+    // console.log('file', file);
+    // console.log('body', body);
+    return this.userService.splitUpload({ ...body, chunk: file.buffer });
+  }
+  @Get('/upload/check')
+  getUploadFiles(
+    @Query('fileHash') fileHash: string,
+    @Query('total') total: number,
+  ) {
+    return this.userService.getUploadFileList(fileHash, total);
   }
 
   @Get('/picture/:filename')

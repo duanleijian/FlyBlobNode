@@ -21,9 +21,11 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^8.0.0",
-    "@nestjs/core": "^8.0.0",
-    "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/common": "^9.4.2",
+    "@nestjs/core": "^9.4.2",
+    "@nestjs/platform-express": "^9.4.2",
+    "@nestjs/platform-socket.io": "^9.4.2",
+    "@nestjs/websockets": "^9.4.2",
     "@types/crypto-js": "^4.1.1",
     "crypto-js": "^4.1.1",
     "jsonwebtoken": "^8.5.1",

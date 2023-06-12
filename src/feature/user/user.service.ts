@@ -10,10 +10,11 @@ import { join } from 'path';
 import { createWriteStream } from 'fs';
 import { uuid } from '../../utils/uuid'
 import { Random } from '../../utils/rand'
-import { existDir } from '../../utils/file'
 import { UserParams } from './user.dto'
 import useGlobal from '../../utils/global'
 import { filterParam, paging } from '@/utils/pager';
+import { existDir, isDirectory, streamMergeMain, getFolderFileTotal, getDirFiles } from '../../utils/file'
+const fs = require('fs');
 const nodemailer = require('nodemailer')
 @Injectable()
 export class UserService {
@@ -78,14 +79,17 @@ export class UserService {
         })
     }
     queryOneDetail(token: string) {
-        const { decoded, err } = verifyToken(token)                
-        if(err) {
-            return JSONResult(401, null, 'token已过期失效!')
-        } else {                        
-            return getJSONResult(async (res) => {                
-                res.data = await this.userRepository.findOneDetail(decoded.userName, AES_ECB_ENCRYPT(decoded.userPwd))                                                   
-            })
-        }        
+        const { decoded } = verifyToken(token)                
+        // if(err) {
+        //     return JSONResult(401, null, 'token已过期失效!')
+        // } else {                        
+        //     return getJSONResult(async (res) => {                
+        //         res.data = await this.userRepository.findOneDetail(decoded.userName, AES_ECB_ENCRYPT(decoded.userPwd))                                                   
+        //     })
+        // }
+        return getJSONResult(async (res) => {                
+            res.data = await this.userRepository.findOneDetail(decoded.userName, AES_ECB_ENCRYPT(decoded.userPwd))                                                   
+        })        
     }
     queryUserByIds(userIds: string) {
         return getJSONResult(async (res) => {
@@ -194,7 +198,9 @@ export class UserService {
         try {
             const resultMap = await this.userRepository.findOne(userName, AES_ECB_ENCRYPT(userPwd))
             if (resultMap[0].result) {
-                return JSONResult(200, createToken({userName, userPwd}, 60 * 60), 'ok')
+                const authToken = createToken({userName, userPwd}, '60s')
+                const refreshToken = createToken({userName, userPwd}, 60 * 10)
+                return JSONResult(200, { authToken, refreshToken }, 'ok')
             } else {
                 return JSONResult(500, null, '请检查账号密码是否正确!')
             }
@@ -212,6 +218,16 @@ export class UserService {
             }
         } catch (err) {
             return JSONResult(500, null, `login: ${err}`)
+        }
+    }
+    async refreshAuthToken(authToken: string, refreshToken: string) {
+        const { decoded, err } = verifyToken(refreshToken) 
+        if (err) {
+            return JSONResult(500, null, `refreshToken已过期`)
+        } else {
+            const { userName, userPwd } = decoded
+            const newToken = createToken({userName, userPwd}, 60 * 60)
+            return JSONResult(200, { authToken: newToken, refreshToken }, 'ok')
         }
     }
     async uploadPicture(file: any, userId: number) {                        
@@ -233,6 +249,28 @@ export class UserService {
         } catch (err) {
             return JSONResult(500, null, err)
         }                
+    }
+    async splitUpload(fileBody: any) {
+        const uploadFolder = join(__dirname, '..',`../public/upload/${fileBody.md5}`)
+        await existDir(uploadFolder)
+        fs.writeFileSync(join(__dirname, '..',`../public/upload/${fileBody.md5}`, `${fileBody.serialNo}`), fileBody.chunk)
+        const process = getFolderFileTotal(uploadFolder, fileBody.total)
+        if (process >= 1) {
+            streamMergeMain(uploadFolder, join(uploadFolder, `${fileBody.fileName}`), fileBody.fileName)
+            return JSONResult(200, { process, addr: null }, 'ok')
+        } else {
+            return JSONResult(200, { process, addr: join(uploadFolder, `${fileBody.fileName}`) }, 'ok')
+        }
+    }
+    getUploadFileList(fileHash: string, total: number) {
+        const uploadSrc = join(__dirname, '..',`../public/upload/${fileHash}`)
+        console.log('uploadSrc', uploadSrc)
+        if(isDirectory(uploadSrc)) {
+            let list = getDirFiles(uploadSrc)
+            list = list.filter(i => !i.includes('.'))
+            return JSONResult(200, { list, status:  list.length == total}, 'ok')
+        }
+        return JSONResult(200, { list: [], status: false }, 'ok')
     }
     sendMail(userId: number, targetEmail: string) {        
         const global = useGlobal
