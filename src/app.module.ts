@@ -4,7 +4,7 @@ import { ArticleModule } from './feature/article/article.module';
 import { UserModule } from './feature/user/user.module';
 import { NoticeModule } from './feature/notice//notice.module';
 // import { SocketModule } from './feature/socket/socket.module';
-import { MyWebSocketGateway } from '@/webscoket/SocketGateWay';
+// import { MyWebSocketGateway } from '@/webscoket/SocketGateWay';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,6 +18,6 @@ import { AppService } from './app.service';
     NoticeModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MyWebSocketGateway],
+  providers: [AppService],
 })
 export class AppModule {}
