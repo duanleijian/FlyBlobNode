@@ -82,7 +82,6 @@ export class UserController {
   }
 
   @Get('/countAuthor/:id')
-  @UseInterceptors(TokenInterceptor)
   getAuthorCounts(@Param('id') id: number) {
     return this.userService.queryAuthorCountById(id);
   }
